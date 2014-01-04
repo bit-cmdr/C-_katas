@@ -18,8 +18,8 @@ namespace RepositoryExtensions.Core.Model
         {
         }
 
-        public Employee(string name, IEmployee manager)
-            :this(Guid.Empty, name, manager, new IEmployee[0])
+        public Employee(string name, IManager manager)
+            : this(Guid.Empty, name, manager, new IEmployee[0])
         {
         }
 
@@ -28,17 +28,22 @@ namespace RepositoryExtensions.Core.Model
         {
         }
 
-        public Employee(string name, IEmployee manager, IEmployee[] employees)
+        public Employee(string name, IManager manager, IEmployee[] employees)
             :this(Guid.Empty, name, manager, employees)
         {
         }
 
-        public Employee(Guid id, string name, IEmployee manager)
-            :this(id, name, manager, new IEmployee[0])
+        public Employee(Guid id, string name)
+            : this(id, name, default(Employee), new IEmployee[0])
         {
         }
 
-        public Employee(Guid id, string name, IEmployee manager, IEmployee[] employees)
+        public Employee(Guid id, string name, IManager manager)
+            : this(id, name, manager, new IEmployee[0])
+        {
+        }
+
+        public Employee(Guid id, string name, IManager manager, IEmployee[] employees)
         {
             Id = id;
             Name = name ?? string.Empty;

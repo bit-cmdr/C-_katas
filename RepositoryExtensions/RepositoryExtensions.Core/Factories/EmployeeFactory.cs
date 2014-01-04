@@ -14,7 +14,7 @@ namespace RepositoryExtensions.Core.Factories
             return new Employee(name);
         }
 
-        public virtual IEmployee Create(string name, IEmployee manager)
+        public virtual IEmployee Create(string name, IManager manager)
         {
             return new Employee(name, manager);
         }

@@ -9,31 +9,48 @@ namespace RepositoryExtensions.Data
 {
     public class DataMapper
     {
+        private const int DEPTH = 2;
+
         public void Configure()
         {
-            // DB to Domain
             Mapper
-                .CreateMap<Data.Models.Employee, RepositoryExtensions.Core.IManager>();
+                .CreateMap<Data.Models.Employee, Core.IManager>()
+                .MaxDepth(DEPTH)
+                .ConstructUsing(CreateDomainManager)
+                .ReverseMap();
             Mapper
-                .CreateMap<Data.Models.Employee, RepositoryExtensions.Core.IEmployee>();
-            //Mapper
-            //    .CreateMap<RepositoryExtensions.Core.IManager, RepositoryExtensions.Core.Model.Employee>();
-            //Mapper
-            //    .CreateMap<RepositoryExtensions.Core.IEmployee, RepositoryExtensions.Core.Model.Employee>();
-            //Mapper
-            //    .CreateMap<RepositoryExtensions.Core.Model.Employee, RepositoryExtensions.Core.IManager>();
-            //Mapper
-            //    .CreateMap<RepositoryExtensions.Core.Model.Employee, RepositoryExtensions.Core.IEmployee>();
+                .CreateMap<Data.Models.Employee, Core.IEmployee>()
+                .MaxDepth(DEPTH)
+                .ConstructUsing(CreateDomainEmployee)
+                .ReverseMap();
             Mapper
-                .CreateMap<Data.Models.Employee, RepositoryExtensions.Core.Model.Employee>();
+                .CreateMap<Data.Models.Employee, Core.Model.Employee>()
+                .MaxDepth(DEPTH)
+                .ConstructUsing(CreateConcreteEmployee)
+                .ReverseMap();
+        }
 
-            // Domain to DB
-            //Mapper
-            //    .CreateMap<RepositoryExtensions.Core.Model.Employee, Data.Models.Employee>();
-            //Mapper
-            //    .CreateMap<RepositoryExtensions.Core.IEmployee, Data.Models.Employee>();
-            //Mapper
-            //    .CreateMap<RepositoryExtensions.Core.IManager, Data.Models.Employee>();
+        private Core.IManager CreateDomainManager(Data.Models.Employee employee)
+        {
+            return new Core.Model.Employee(employee.Id, 
+                employee.Name, 
+                Mapper.Map<Core.IManager>(employee.Manager), 
+                Mapper.Map<Core.IEmployee[]>(employee.Employees));
+        }
+
+        private Core.IEmployee CreateDomainEmployee(Data.Models.Employee employee)
+        {
+            return new Core.Model.Employee(employee.Id,
+                employee.Name,
+                Mapper.Map<Core.IManager>(employee.Manager));
+        }
+
+        private Core.Model.Employee CreateConcreteEmployee(Data.Models.Employee employee)
+        {
+            return new Core.Model.Employee(employee.Id,
+                employee.Name,
+                Mapper.Map<Core.IManager>(employee.Manager),
+                Mapper.Map<Core.IEmployee[]>(employee.Employees));
         }
     }
 }
