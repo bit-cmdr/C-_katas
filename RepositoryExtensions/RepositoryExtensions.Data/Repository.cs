@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using RepositoryExtensions.Core;
 using RepositoryExtensions.Data.Contexts;
+using RepositoryExtensions.Utilities;
 
 namespace RepositoryExtensions.Data
 {
@@ -57,10 +57,18 @@ namespace RepositoryExtensions.Data
 
         public virtual IEnumerable<TDestination> Query(Expression<Func<TDestination, bool>> query)
         {
-            var filter = Mapper.Map<Expression<Func<TSource, bool>>>(query);
+            var filter = GetMappedSelector(query);
+
             return Mapper.Map<IEnumerable<TDestination>>(
                 _context.Set<TSource>()
                 .Where(filter));
+        }
+
+        protected Expression<Func<TSource, bool>> GetMappedSelector(Expression<Func<TDestination, bool>> selector)
+        {
+            var mapper = Mapper.Engine.CreateMapExpression<TSource, TDestination>();
+            var mappedSelector = selector.Compose(mapper);
+            return mappedSelector;
         }
     }
 }

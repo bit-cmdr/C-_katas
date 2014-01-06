@@ -85,6 +85,10 @@
       <Project>{b2d6d921-238d-4c18-85a5-cbde59e59da7}</Project>
       <Name>RepositoryExtensions.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RepositoryExtensions.Utilities\RepositoryExtensions.Utilities.csproj">
+      <Project>{6a0a4d94-112c-4ddb-9ae8-c105a7f18a0f}</Project>
+      <Name>RepositoryExtensions.Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

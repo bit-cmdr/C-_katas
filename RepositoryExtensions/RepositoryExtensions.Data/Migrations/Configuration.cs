@@ -1,9 +1,7 @@
 namespace RepositoryExtensions.Data.Migrations
 {
     using System;
-    using System.Data.Entity;
     using System.Data.Entity.Migrations;
-    using System.Linq;
     using RepositoryExtensions.Data.Contexts;
     using RepositoryExtensions.Data.Models;
 
