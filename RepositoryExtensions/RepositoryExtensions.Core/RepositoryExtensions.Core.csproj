@@ -42,7 +42,7 @@
     <Compile Include="Factories\EmployeeFactory.cs" />
     <Compile Include="Factories\ManagerFactory.cs" />
     <Compile Include="Interfaces.cs" />
-    <Compile Include="Model\Employee.cs" />
+    <Compile Include="Models\Employee.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
