@@ -19,9 +19,11 @@ namespace RepositoryExtensions
         static void Main(string[] args)
         {
             Initialize();
-            var repo = new Repository<Data.Models.Employee, Employee>(new Data.Contexts.HrContext(), _mapping);
-            var all = repo.GetAll();
-            var geoff = repo.Get(Guid.Parse("7d2e365a-6749-4ed5-a9f5-0f9db713fd9c"));
+            var employeeRepo = new Repository<Data.Models.Employee, IEmployee>(new Data.Contexts.HrContext(), _mapping);
+            var managerRepo = new Repository<Data.Models.Employee, IManager>(new Data.Contexts.HrContext(), _mapping);
+            var all = employeeRepo.GetAll();
+            var geoff = employeeRepo.Get(Guid.Parse("7d2e365a-6749-4ed5-a9f5-0f9db713fd9c"));
+            var managers = managerRepo.Query(x => x.Employees != null && x.Employees.Any());
 
             Console.ReadLine();
         }

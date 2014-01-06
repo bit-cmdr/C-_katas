@@ -14,14 +14,9 @@ namespace RepositoryExtensions.Core.Factories
             return new Employee(name);
         }
 
-        public virtual IManager Create(string name, IManager manager)
+        public virtual IManager Create(string name, IEmployee[] employees)
         {
-            return new Employee(name, manager);
-        }
-
-        public virtual IManager Create(string name, IManager manager, IEmployee[] employees)
-        {
-            return new Employee(name, manager, employees);
+            return new Employee(name, employees);
         }
     }
 }

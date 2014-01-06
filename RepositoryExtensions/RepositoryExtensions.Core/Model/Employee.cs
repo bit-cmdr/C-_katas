@@ -9,51 +9,34 @@ namespace RepositoryExtensions.Core.Model
     public class Employee :IEmployee, IManager
     {
         public Employee()
-            : this(Guid.Empty, string.Empty, default(Employee), new IEmployee[0])
+            : this(Guid.Empty, string.Empty, new IEmployee[0])
         {
         }
 
         public Employee(string name)
-            : this(Guid.Empty, name, default(Employee), new IEmployee[0])
-        {
-        }
-
-        public Employee(string name, IManager manager)
-            : this(Guid.Empty, name, manager, new IEmployee[0])
+            : this(Guid.Empty, name, new IEmployee[0])
         {
         }
 
         public Employee(string name, IEmployee[] employees)
-            : this(Guid.Empty, name, default(Employee), employees)
-        {
-        }
-
-        public Employee(string name, IManager manager, IEmployee[] employees)
-            :this(Guid.Empty, name, manager, employees)
+            : this(Guid.Empty, name, employees)
         {
         }
 
         public Employee(Guid id, string name)
-            : this(id, name, default(Employee), new IEmployee[0])
+            : this(id, name, new IEmployee[0])
         {
         }
 
-        public Employee(Guid id, string name, IManager manager)
-            : this(id, name, manager, new IEmployee[0])
-        {
-        }
-
-        public Employee(Guid id, string name, IManager manager, IEmployee[] employees)
+        public Employee(Guid id, string name, IEmployee[] employees)
         {
             Id = id;
             Name = name ?? string.Empty;
-            Manager = manager ?? default(Employee);
             _employees = employees ?? new IEmployee[0];
         }
 
         public Guid Id { get; private set; }
         public string Name { get; private set; }
-        public IEmployee Manager { get; private set; }
         public IEnumerable<IEmployee> Employees { get { return _employees; } }
 
         private IEmployee[] _employees;
@@ -62,7 +45,7 @@ namespace RepositoryExtensions.Core.Model
         {
             var temp = new IEmployee[_employees.Length + 1];
             _employees.CopyTo(temp, 0);
-            temp[temp.Length] = employee;
+            temp[_employees.Length] = employee;
             _employees = temp;
             temp = null;
         }

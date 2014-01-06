@@ -11,7 +11,6 @@ namespace RepositoryExtensions.Core
     {
         Guid Id { get; }
         string Name { get; }
-        IEmployee Manager { get; }
     }
 
     public interface IManager :IEmployee
@@ -25,14 +24,12 @@ namespace RepositoryExtensions.Core
     public interface IEmployeeFactory
     {
         IEmployee Create(string name);
-        IEmployee Create(string name, IManager manager);
     }
 
     public interface IManagerFactory
     {
         IManager Create(string name);
-        IManager Create(string name, IManager manager);
-        IManager Create(string name, IManager manager, IEmployee[] employees);
+        IManager Create(string name, IEmployee[] employees);
     }
 
     public interface IRepository<T>
