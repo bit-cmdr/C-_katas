@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using RepositoryExtensions.Core;
 using RepositoryExtensions.Data.Contexts;
 using RepositoryExtensions.Utilities;

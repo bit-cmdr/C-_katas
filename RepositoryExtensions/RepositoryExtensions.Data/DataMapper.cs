@@ -15,9 +15,11 @@ namespace RepositoryExtensions.Data
                     if (s.Employees != null)
                         s.Employees.Each(e => d.GainEmployee(Mapper.Map<Core.IEmployee>(e)));
                 })
+                .ConstructUsing(x => new Core.Models.Employee(x.Id, x.Name))
                 .As<Core.Models.Employee>();
             Mapper
                 .CreateMap<Data.Models.Employee, Core.IEmployee>()
+                .ConstructUsing(x => new Core.Models.Employee(x.Id, x.Name))
                 .As<Core.Models.Employee>();
             Mapper
                 .CreateMap<Data.Models.Employee, Core.Models.Employee>()
