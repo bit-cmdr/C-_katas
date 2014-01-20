@@ -6,6 +6,7 @@ using AutoMapper;
 using RepositoryExtensions.Core;
 using RepositoryExtensions.Data.Contexts;
 using RepositoryExtensions.Utilities;
+using QueryMapper;
 
 namespace RepositoryExtensions.Data
 {
@@ -56,11 +57,7 @@ namespace RepositoryExtensions.Data
 
         public virtual IEnumerable<TDestination> Query(Expression<Func<TDestination, bool>> query)
         {
-            var filter = GetMappedSelector(query);
-
-            return Mapper.Map<IEnumerable<TDestination>>(
-                _context.Set<TSource>()
-                .Where(filter));
+            return _context.Set<TSource>().AsMappedQuery(new DelegatedMapper<TSource, TDestination>(s => Mapper.Map<TDestination>(s))).Where(query);
         }
 
         protected Expression<Func<TSource, bool>> GetMappedSelector(Expression<Func<TDestination, bool>> selector)

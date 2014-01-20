@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using QueryMapper;
+using System.Collections.Generic;
 
 namespace RepositoryExtensions.Data
 {
     public class DataMapper
     {
-        private const int DEPTH = 1;
+        private const int DEPTH = 2;
 
         public void Configure()
         {

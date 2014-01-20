@@ -66,6 +66,16 @@ namespace RepositoryExtensions.Utilities
             return new ProjectionExpression<TSource>(source, mappingEngine);
         }
 
+        private static LambdaExpression CreateMapExpression<T>(IMappingEngine mappingEngine, Type typeIn)
+        {
+            // this is the input parameter of this expression with name <variableName>
+            ParameterExpression instanceParameter = Expression.Parameter(typeIn, "dto");
+
+            var total = CreateMapExpression<T>(mappingEngine, typeIn, instanceParameter);
+
+            return Expression.Lambda(total, instanceParameter);
+        }
+
         private static LambdaExpression CreateMapExpression(IMappingEngine mappingEngine, Type typeIn, Type typeOut)
         {
             // this is the input parameter of this expression with name <variableName>
@@ -74,39 +84,6 @@ namespace RepositoryExtensions.Utilities
             var total = CreateMapExpression(mappingEngine, typeIn, typeOut, instanceParameter);
 
             return Expression.Lambda(total, instanceParameter);
-        }
-
-        private static LambdaExpression CreateMapExpression<T>(IMappingEngine mappingEngine, Type typeIn)
-        {
-            // this is the input parameter of this expression with name <variableName>
-            ParameterExpression instanceParameter = Expression.Parameter(typeIn, "dto");
-            var typeOut = typeof(T);
-            var total = CreateMapExpression<T>(mappingEngine, typeIn, instanceParameter);
-
-            return Expression.Lambda(total, instanceParameter);
-        }
-
-        private static Expression CreateMapExpression(IMappingEngine mappingEngine, Type typeIn, Type typeOut, Expression instanceParameter)
-        {
-            var typeMap = mappingEngine.ConfigurationProvider.FindTypeMapFor(typeIn, typeOut);
-
-            if (typeMap == null)
-            {
-                const string MessageFormat = "Missing map from {0} to {1}. Create using Mapper.CreateMap<{0}, {1}>.";
-
-                var message = string.Format(MessageFormat, typeIn.Name, typeOut.Name);
-
-                throw new InvalidOperationException(message);
-            }
-
-            var bindings = CreateMemberBindings(mappingEngine, typeIn, typeMap, instanceParameter);
-
-            Expression total = Expression.MemberInit(
-                Expression.New(typeOut),
-                bindings.ToArray()
-                );
-
-            return total;
         }
 
         private static Expression CreateMapExpression<T>(IMappingEngine mappingEngine, Type typeIn, Expression instanceParameter)
@@ -129,7 +106,8 @@ namespace RepositoryExtensions.Utilities
             if (typeOut.IsInterface && typeMap.DestinationType != null)
             {
                 total = Expression.MemberInit(
-                    Expression.New(new InterfaceConstructorInfo<T>(typeMap.DestinationType)),
+                    Expression.New(new InterfaceConstructorInfo<T>(
+                        new InterfaceType(typeOut, typeMap.DestinationType))),
                     bindings.ToArray()
                     );
             }
@@ -140,6 +118,29 @@ namespace RepositoryExtensions.Utilities
                     bindings.ToArray()
                     );
             }
+
+            return total;
+        }
+
+        private static Expression CreateMapExpression(IMappingEngine mappingEngine, Type typeIn, Type typeOut, Expression instanceParameter)
+        {
+            var typeMap = mappingEngine.ConfigurationProvider.FindTypeMapFor(typeIn, typeOut);
+
+            if (typeMap == null)
+            {
+                const string MessageFormat = "Missing map from {0} to {1}. Create using Mapper.CreateMap<{0}, {1}>.";
+
+                var message = string.Format(MessageFormat, typeIn.Name, typeOut.Name);
+
+                throw new InvalidOperationException(message);
+            }
+
+            var bindings = CreateMemberBindings(mappingEngine, typeIn, typeMap, instanceParameter);
+
+            Expression total = Expression.MemberInit(
+                Expression.New(typeOut),
+                bindings.ToArray()
+                );
 
             return total;
         }
@@ -332,6 +333,198 @@ namespace RepositoryExtensions.Utilities
         public override Type ReflectedType
         {
             get { return _info.ReflectedType; }
+        }
+    }
+
+    public class InterfaceType :Type
+    {
+        private readonly Type _interfaceType;
+        private readonly Type _concreteType;
+        public InterfaceType(Type interfaceType, Type concreteType)
+            :base()
+        {
+            _interfaceType = interfaceType;
+            _concreteType = concreteType;
+        }
+
+        public override Assembly Assembly
+        {
+            get { return _interfaceType.Assembly; }
+        }
+
+        public override string AssemblyQualifiedName
+        {
+            get { return _interfaceType.AssemblyQualifiedName; }
+        }
+
+        public override Type BaseType
+        {
+            get { return _concreteType; }
+        }
+
+        public override string FullName
+        {
+            get { return _interfaceType.FullName; }
+        }
+
+        public override Guid GUID
+        {
+            get { return _interfaceType.GUID; }
+        }
+
+        protected override TypeAttributes GetAttributeFlagsImpl()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override ConstructorInfo GetConstructorImpl(BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+        {
+            return _concreteType.GetConstructor(bindingAttr, binder, callConvention, types, modifiers);
+        }
+
+        public override ConstructorInfo[] GetConstructors(BindingFlags bindingAttr)
+        {
+            return _concreteType.GetConstructors(bindingAttr);
+        }
+
+        public override Type GetElementType()
+        {
+            return _interfaceType.GetElementType();
+        }
+
+        public override EventInfo GetEvent(string name, BindingFlags bindingAttr)
+        {
+            return _concreteType.GetEvent(name, bindingAttr);
+        }
+
+        public override EventInfo[] GetEvents(BindingFlags bindingAttr)
+        {
+            return _concreteType.GetEvents(bindingAttr);
+        }
+
+        public override FieldInfo GetField(string name, BindingFlags bindingAttr)
+        {
+            return _concreteType.GetField(name, bindingAttr);
+        }
+
+        public override FieldInfo[] GetFields(BindingFlags bindingAttr)
+        {
+            return _concreteType.GetFields(bindingAttr);
+        }
+
+        public override Type GetInterface(string name, bool ignoreCase)
+        {
+            return _interfaceType.GetInterface(name, ignoreCase);
+        }
+
+        public override Type[] GetInterfaces()
+        {
+            return _interfaceType.GetInterfaces();
+        }
+
+        public override MemberInfo[] GetMembers(BindingFlags bindingAttr)
+        {
+            return _concreteType.GetMembers(bindingAttr);
+        }
+
+        protected override MethodInfo GetMethodImpl(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+        {
+            return _concreteType.GetMethod(name, bindingAttr, binder, callConvention, types, modifiers);
+        }
+
+        public override MethodInfo[] GetMethods(BindingFlags bindingAttr)
+        {
+            return _concreteType.GetMethods(bindingAttr);
+        }
+
+        public override Type GetNestedType(string name, BindingFlags bindingAttr)
+        {
+            return _interfaceType.GetNestedType(name, bindingAttr);
+        }
+
+        public override Type[] GetNestedTypes(BindingFlags bindingAttr)
+        {
+            return _interfaceType.GetNestedTypes(bindingAttr);
+        }
+
+        public override PropertyInfo[] GetProperties(BindingFlags bindingAttr)
+        {
+            return _concreteType.GetProperties(bindingAttr);
+        }
+
+        protected override PropertyInfo GetPropertyImpl(string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers)
+        {
+            return _concreteType.GetProperty(name, bindingAttr, binder, returnType, types, modifiers);
+        }
+
+        protected override bool HasElementTypeImpl()
+        {
+            return _concreteType.HasElementType;
+        }
+
+        public override object InvokeMember(string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers, System.Globalization.CultureInfo culture, string[] namedParameters)
+        {
+            return _concreteType.InvokeMember(name, invokeAttr, binder, target, args, culture);
+        }
+
+        protected override bool IsArrayImpl()
+        {
+            return _interfaceType.IsArray;
+        }
+
+        protected override bool IsByRefImpl()
+        {
+            return _concreteType.IsByRef;
+        }
+
+        protected override bool IsCOMObjectImpl()
+        {
+            return _concreteType.IsCOMObject;
+        }
+
+        protected override bool IsPointerImpl()
+        {
+            return _concreteType.IsPointer;
+        }
+
+        protected override bool IsPrimitiveImpl()
+        {
+            return _interfaceType.IsPrimitive;
+        }
+
+        public override Module Module
+        {
+            get { return _interfaceType.Module; }
+        }
+
+        public override string Namespace
+        {
+            get { return _interfaceType.Namespace; }
+        }
+
+        public override Type UnderlyingSystemType
+        {
+            get { return _interfaceType.UnderlyingSystemType; }
+        }
+
+        public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+        {
+            return _concreteType.GetCustomAttributes(attributeType, inherit);
+        }
+
+        public override object[] GetCustomAttributes(bool inherit)
+        {
+            return _concreteType.GetCustomAttributes(inherit);
+        }
+
+        public override bool IsDefined(Type attributeType, bool inherit)
+        {
+            return _concreteType.IsDefined(attributeType, inherit);
+        }
+
+        public override string Name
+        {
+            get { return _interfaceType.Name; }
         }
     }
 }
